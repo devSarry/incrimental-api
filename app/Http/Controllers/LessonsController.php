@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Lesson;
+use Illuminate\Http\Response;
 
-class LessonsController extends Controller
-{
+class LessonsController extends Controller {
+
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +17,22 @@ class LessonsController extends Controller
      */
     public function index()
     {
-        return Lesson::all();
+        //This is not a really good way to do this.
+        //the main reason is that we aren't molding our data to be
+        //more specific to the use case. Its just a dump of our database.
+        //with very little other info.
+
+        //1. All is bad
+        //2. No way to attach meta data.
+        //3. Linking db structure to the API output (things like password fields would be shown)
+        //4. No way to signal headers/response codes.
+
+        $lessons = Lesson::all();
+
+        return response()->json([
+            'data' => $lessons
+        ],
+            200);
     }
 
     /**
@@ -32,7 +48,7 @@ class LessonsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -43,18 +59,31 @@ class LessonsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        //
+        $lesson = Lesson::find($id);
+
+        /*Preforming a check to see if id exists in db.*/
+        if ( ! $lesson ) {
+            return response()->json([
+                'error' => 'Lesson does not exist'
+            ],
+                404);
+        }
+
+        /*If check doesn't fail we send out the data*/
+        return response()->json([
+            'data' => $lesson
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -65,8 +94,8 @@ class LessonsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -77,7 +106,7 @@ class LessonsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
