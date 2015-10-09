@@ -11,6 +11,9 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+
+//We add group prefix to make it easy to swap out the version if we ever
+//want to "release" a new version. Or have 2 versions side by side.
+Route::group(['prefix' => 'api/v1'], function() {
+    Route::resource('lessons', LessonsController::class);
 });
