@@ -64,7 +64,20 @@ class LessonsController extends Controller {
      */
     public function show($id)
     {
-        //
+        $lesson = Lesson::find($id);
+
+        /*Preforming a check to see if id exists in db.*/
+        if ( ! $lesson ) {
+            return response()->json([
+                'error' => 'Lesson does not exist'
+            ],
+                404);
+        }
+
+        /*If check doesn't fail we send out the data*/
+        return response()->json([
+            'data' => $lesson
+        ]);
     }
 
     /**
