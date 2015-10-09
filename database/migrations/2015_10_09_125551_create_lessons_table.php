@@ -18,6 +18,7 @@ class CreateLessonsTable extends Migration
             $table->string('title');
             $table->text('body');
             $table->integer('user_id')->unsigned();
+            $table->boolean('someBol');
 
             $table->foreign('user_id')
                   ->references('id')
