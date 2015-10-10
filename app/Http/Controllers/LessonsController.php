@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Lesson;
 use Illuminate\Http\Response;
 
-class LessonsController extends Controller {
+class LessonsController extends ApiController {
 
     /**
      * @var \ACME\Transformers\LessonsTransformer;
@@ -46,10 +46,9 @@ class LessonsController extends Controller {
         //Added eager loading of the authors from the users table.
         $lessons = Lesson::with('author')->get();
 
-        return response()->json([
+        return $this->respond([
             'data' => $this->lessonsTransformer->transformCollection($lessons->all())
-        ],
-            200);
+        ]);
     }
 
     /**
@@ -81,21 +80,18 @@ class LessonsController extends Controller {
      */
     public function show($id)
     {
-        $lesson = Lesson::find($id)->with('author')->first();
+        $lesson = Lesson::find($id);
 
         /*Preforming a check to see if id exists in db.*/
         if ( ! $lesson)
         {
-            return response()->json([
-                'error' => 'Lesson does not exist'
-            ],
-                404);
+            return $this->respondNotFound('Lesson not found');
         }
 
         /*If check doesn't fail we send out the data*/
 
-        return response()->json([
-            'data' => $this->lessonsTransformer->transform($lesson)
+        return $this->respond([
+            'data' => $this->lessonsTransformer->transform($lesson->with('author')->first())
         ]);
     }
 
