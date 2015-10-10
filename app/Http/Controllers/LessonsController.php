@@ -46,10 +46,9 @@ class LessonsController extends ApiController {
         //Added eager loading of the authors from the users table.
         $lessons = Lesson::with('author')->get();
 
-        return response()->json([
+        return $this->respond([
             'data' => $this->lessonsTransformer->transformCollection($lessons->all())
-        ],
-            200);
+        ]);
     }
 
     /**
@@ -91,7 +90,7 @@ class LessonsController extends ApiController {
 
         /*If check doesn't fail we send out the data*/
 
-        return response()->json([
+        return $this->respond([
             'data' => $this->lessonsTransformer->transform($lesson->with('author')->first())
         ]);
     }
