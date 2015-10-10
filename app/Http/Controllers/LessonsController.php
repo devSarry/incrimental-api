@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use ACME\Transformers\LessonsTransformer;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -9,6 +10,20 @@ use App\Lesson;
 use Illuminate\Http\Response;
 
 class LessonsController extends Controller {
+
+    /**
+     * @var \ACME\Transformers\LessonsTransformer;
+     */
+    protected $lessonsTransformer;
+
+    /**
+     * LessonsController constructor.
+     * @param LessonsTransformer $lessonsTransformer
+     */
+    public function __construct(LessonsTransformer $lessonsTransformer)
+    {
+        $this->lessonsTransformer = $lessonsTransformer;
+    }
 
     /**
      * Display a listing of the resource.
@@ -32,7 +47,7 @@ class LessonsController extends Controller {
         $lessons = Lesson::with('author')->get();
 
         return response()->json([
-            'data' => $this->transformCollection($lessons)
+            'data' => $this->lessonsTransformer->transformCollection($lessons->all())
         ],
             200);
     }
@@ -80,7 +95,7 @@ class LessonsController extends Controller {
         /*If check doesn't fail we send out the data*/
 
         return response()->json([
-            'data' => $this->transform($lesson)
+            'data' => $this->lessonsTransformer->transform($lesson)
         ]);
     }
 
@@ -119,35 +134,4 @@ class LessonsController extends Controller {
     }
 
 
-    /**
-     * Transforms a collection of lessons to an array
-     *
-     * @param $lessons
-     * @return array
-     */
-    public function transformCollection($lessons)
-    {
-        /*Instead of passing an anonymous function we are now telling it to us a function called transform
-        and were passing each lesson to this.transform*/
-
-        /*Not sure why this array method call works. But kind of cool but confusing Use call back functions instead
-                    function ($lesson)
-                    {
-                        return $this->transform($lesson);
-                    }
-        */
-        return array_map([$this, 'transform'], $lessons->toArray());
-    }
-
-
-    private function transform($lesson)
-    {
-
-        return [
-            'title'  => $lesson['title'],
-            'body'   => $lesson['body'],
-            'active' => $lesson['someBol'],
-            'author' => $lesson['author']['name']
-        ];
-    }
 }
