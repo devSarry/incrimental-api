@@ -32,7 +32,7 @@ class LessonsController extends Controller {
         $lessons = Lesson::with('author')->get();
 
         return response()->json([
-            'data' => $this->transform($lessons)
+            'data' => $this->transformCollection($lessons)
         ],
             200);
     }
@@ -66,7 +66,7 @@ class LessonsController extends Controller {
      */
     public function show($id)
     {
-        $lesson = Lesson::find($id);
+        $lesson = Lesson::find($id)->with('author')->first();
 
         /*Preforming a check to see if id exists in db.*/
         if ( ! $lesson)
@@ -80,7 +80,7 @@ class LessonsController extends Controller {
         /*If check doesn't fail we send out the data*/
 
         return response()->json([
-            'data' => $lesson
+            'data' => $this->transform($lesson)
         ]);
     }
 
@@ -118,18 +118,36 @@ class LessonsController extends Controller {
         //
     }
 
-    public function transform($lesson)
+
+    /**
+     * Transforms a collection of lessons to an array
+     *
+     * @param $lessons
+     * @return array
+     */
+    public function transformCollection($lessons)
+    {
+        /*Instead of passing an anonymous function we are now telling it to us a function called transform
+        and were passing each lesson to this.transform*/
+
+        /*Not sure why this array method call works. But kind of cool but confusing Use call back functions instead
+                    function ($lesson)
+                    {
+                        return $this->transform($lesson);
+                    }
+        */
+        return array_map([$this, 'transform'], $lessons->toArray());
+    }
+
+
+    private function transform($lesson)
     {
 
-        return array_map(function ($lesson)
-        {
-
-            return [
-                'title'  => $lesson['title'],
-                'body'   => $lesson['body'],
-                'active' => $lesson['someBol'],
-                'author' => $lesson['author']['name']
-            ];
-        }, $lesson->toArray());
+        return [
+            'title'  => $lesson['title'],
+            'body'   => $lesson['body'],
+            'active' => $lesson['someBol'],
+            'author' => $lesson['author']['name']
+        ];
     }
 }
