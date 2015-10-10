@@ -81,21 +81,18 @@ class LessonsController extends ApiController {
      */
     public function show($id)
     {
-        $lesson = Lesson::find($id)->with('author')->first();
+        $lesson = Lesson::find($id);
 
         /*Preforming a check to see if id exists in db.*/
         if ( ! $lesson)
         {
-            return response()->json([
-                'error' => 'Lesson does not exist'
-            ],
-                404);
+            return $this->respondNotFound('Lesson not found');
         }
 
         /*If check doesn't fail we send out the data*/
 
         return response()->json([
-            'data' => $this->lessonsTransformer->transform($lesson)
+            'data' => $this->lessonsTransformer->transform($lesson->with('author')->first())
         ]);
     }
 
