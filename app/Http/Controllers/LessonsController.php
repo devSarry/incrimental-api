@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Lesson;
 use Illuminate\Http\Response;
 
-class LessonsController extends Controller {
+class LessonsController extends ApiController {
 
     /**
      * @var \ACME\Transformers\LessonsTransformer;
