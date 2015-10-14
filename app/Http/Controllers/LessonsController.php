@@ -8,8 +8,15 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Lesson;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LessonsController extends ApiController {
+
 
     /**
      * @var \ACME\Transformers\LessonsTransformer;
@@ -22,7 +29,9 @@ class LessonsController extends ApiController {
      */
     public function __construct(LessonsTransformer $lessonsTransformer)
     {
+        $this->middleware('jwt.auth', ['only' => 'store']);
         $this->lessonsTransformer = $lessonsTransformer;
+
     }
 
     /**
@@ -69,7 +78,15 @@ class LessonsController extends ApiController {
      */
     public function store(Request $request)
     {
-        //
+        $user =  Auth::user();
+
+        if( !$request->get('title') || ! $request->get('body')) {
+            return $this->respondFailedValidation('Parameters failed validation for a lesson');
+        }
+
+        $lesson =  $user->lessons()->create($request->all());
+
+        return $this->respondCreated($lesson, 'Lesson created successfully');
     }
 
     /**
@@ -115,7 +132,7 @@ class LessonsController extends ApiController {
      */
     public function update(Request $request, $id)
     {
-        //
+
     }
 
     /**
