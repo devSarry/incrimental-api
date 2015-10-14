@@ -11,6 +11,10 @@ namespace App\Http\Controllers;
 /*This class extends our base controller which is being extended by our LessonsController
         LessonsController->ApiController->Controller->BaseController*/
 use Illuminate\Support\Facades\Response;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiController extends Controller {
 
@@ -48,6 +52,14 @@ class ApiController extends Controller {
         return $this->setStatusCode(404)->respondWithError($message);
     }
 
+    /**
+     * @return mixed
+     */
+    public function respondFailedValidation($message)
+    {
+        return $this->setStatusCode(422)->respondWithError($message);
+    }
+
     /*We want to make this a bit more flexible so that we wouldnt have to duplicate the code above for
     every type of error. What we really want to do is somethign like
              $this->setStatusCode(404)->respondWithError('not found')*/
@@ -76,6 +88,14 @@ class ApiController extends Controller {
                 'message'     => $message,
                 'status_code' => $this->getStatusCode()
             ]
+        ]);
+    }
+
+    public function respondCreated($lesson, $message)
+    {
+        return $this->setStatusCode(201)->respond([
+            'message' => $message,
+            'data'    => $this->lessonsTransformer->transform($lesson)
         ]);
     }
 
